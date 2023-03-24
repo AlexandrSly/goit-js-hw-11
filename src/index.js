@@ -16,13 +16,11 @@ btnLoadMore.addEventListener('click', onBtnLoadMore);
 
 function onSearch(evt) {
   evt.preventDefault();
-  page = 1;
   gallery.innerHTML = '';
   const name = input.value.trim();
   if (name !== '') {
     pixabay(name);
   } else {
-    btnLoadMore.style.display = 'none';
     return Notiflix.Notify.failure(
       'Sorry, there are no images matching your search query. Please try again.'
     );
@@ -32,10 +30,12 @@ function onSearch(evt) {
 function onBtnLoadMore() {
   const name = input.value.trim();
   page += 1;
+  console.log(page);
   pixabay(name, page);
 }
 
 async function pixabay(name, page) {
+  console.log(page);
   const API_URL = 'https://pixabay.com/api/';
   const options = {
     params: {
@@ -51,7 +51,10 @@ async function pixabay(name, page) {
 
   try {
     const response = await axios.get(API_URL, options);
-    notification(response.data.hits.length, response.data.total);
+    console.log(response.data.hits.length);
+    console.log(response.data.totalHits);
+    console.log(page);
+    notification(response.data.hits.length, response.data.totalHits);
     createMarkup(response.data);
   } catch (error) {
     console.log(error);
@@ -99,6 +102,8 @@ const simpleLightBox = new SimpleLightbox('.gallery a', {
 });
 
 function notification(length, totalHits) {
+  const totalPages = totalHits / length;
+  console.log(totalPages);
   if (length === 0) {
     Notiflix.Notify.failure(
       'Sorry, there are no images matching your search query. Please try again.'
@@ -109,7 +114,7 @@ function notification(length, totalHits) {
     btnLoadMore.style.display = 'flex';
     Notiflix.Notify.success(`Hooray! We found ${totalHits} images.`);
   }
-  if (length < 40) {
+  if (page > totalPages) {
     btnLoadMore.style.display = 'none';
     Notiflix.Notify.info(
       "We're sorry, but you've reached the end of search results."
