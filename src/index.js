@@ -48,13 +48,17 @@ async function pixabay(name, page) {
       per_page: 40,
     },
   };
-
+  console.log('per_page', options.params.per_page);
   try {
     const response = await axios.get(API_URL, options);
     console.log(response.data.hits.length);
     console.log(response.data.totalHits);
     console.log(page);
-    notification(response.data.hits.length, response.data.totalHits);
+    notification(
+      response.data.hits.length,
+      response.data.totalHits,
+      options.params.per_page
+    );
     createMarkup(response.data);
   } catch (error) {
     console.log(error);
@@ -101,9 +105,11 @@ const simpleLightBox = new SimpleLightbox('.gallery a', {
   captionDelay: 250,
 });
 
-function notification(length, totalHits) {
-  const totalPages = totalHits / length;
-  console.log(totalPages);
+function notification(length, totalHits, per_page) {
+  const totalPages = totalHits / per_page;
+  console.log('totalHits', totalHits);
+  console.log('length', length);
+  console.log('totalPages', totalPages);
   if (length === 0) {
     Notiflix.Notify.failure(
       'Sorry, there are no images matching your search query. Please try again.'
